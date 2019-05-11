@@ -1,4 +1,3 @@
-#include "CppUnitTest.h"
 #include <memory>
 
 #include "FakeEngineCore.h"
@@ -8,7 +7,6 @@
 #include "core\GameEngine.h"
 #include "core\GameEngineStateMachine.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace ZeEngine;
 using namespace std;
 

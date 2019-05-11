@@ -1,8 +1,6 @@
-#include "CppUnitTest.h"
 #include "FakeEngineCore.h"
 #include "core\GameLoop.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace ZeEngine;
 
 namespace CoreTests
