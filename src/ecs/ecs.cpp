@@ -26,10 +26,6 @@ namespace ZeEngine
 			}
 		}
 
-		Archetype::~Archetype()
-		{
-		}
-
 		const Entity& Archetype::get_entity()
 		{
 			if (entities > count - 1)

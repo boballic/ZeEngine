@@ -6,10 +6,16 @@
 #include <vector>
 #include <array>
 
-#include "..\libs\cpputest-3.8\include\CppUTest\TestHarness.h"
+#include "CppUTest/TestHarness.h"
+#include "CppUTest/CommandLineTestRunner.h"
 
 using namespace ZeEngine::ecs;
 using namespace std;
+
+int main(int ac, char** av)
+{
+	return CommandLineTestRunner::RunAllTests(ac, av);
+}
 
 namespace CoreTests
 {
@@ -18,161 +24,158 @@ namespace CoreTests
         std::tuple<int, int, long long> position{ 1,2,3 };
     };
 
-    TEST_GROUP(FirstTestGroup)
-    {
-    };
 
-  //  TEST_CLASS(EntityComponentSystemTests)
-  //  {
-  //  public:
-  //      TEST_METHOD(Chunk_CreateInt_ValidSize)
-  //      {
-		//	auto chunk = Archetype::create<int>();
-		//	Assert::IsTrue(chunk->get_max_address() <= chunk_size);
-  //      }  
+	TEST_GROUP(EntityComponentSystemTests)
+	{
+	};
 
-		//TEST_METHOD(Chunk_CreateLong_ValidSize)
-		//{
-		//	auto chunk = Archetype::create<long>();
-		//	Assert::IsTrue(chunk->get_max_address() <= chunk_size);
-		//}
+	TEST(EntityComponentSystemTests, Chunk_CreateInt_ValidSize)
+	{
+		auto chunk = Archetype::create<int>();
+		CHECK(chunk->get_max_address() <= chunk_size);
+	}
 
-		//TEST_METHOD(Chunk_CreatePair_ValidSize)
-		//{
-		//	auto chunk = Archetype::create<int, long>();
-		//	Assert::IsTrue(chunk->get_max_address() <= chunk_size);
-		//}
+	TEST(EntityComponentSystemTests, Chunk_CreateLong_ValidSize)
+	{
+		auto chunk = Archetype::create<long>();
+		CHECK(chunk->get_max_address() <= chunk_size);
+	}
 
-		//TEST_METHOD(Chunk_CreateMany_ValidSize)
-		//{
-		//	auto chunk = Archetype::create<int, long, float, double, long long>();
-		//	Assert::IsTrue(chunk->get_max_address() <= chunk_size);
-		//}
+	TEST(EntityComponentSystemTests, Chunk_CreatePair_ValidSize)
+	{
+		auto chunk = Archetype::create<int, long>();
+		CHECK(chunk->get_max_address() <= chunk_size);
+	}
 
-		//TEST_METHOD(Chunk_CreateStruct_ValidSize)
-		//{
-		//	auto chunk = Archetype::create<int, long, float, double, long long, Component1>();
-		//	Assert::IsTrue(chunk->get_max_address() <= chunk_size);
-		//}
+	TEST(EntityComponentSystemTests, Chunk_CreateMany_ValidSize)
+	{
+		auto chunk = Archetype::create<int, long, float, double, long long>();
+		CHECK(chunk->get_max_address() <= chunk_size);
+	}
 
-		//TEST_METHOD(Chunk_CreatePair_ValidSearch)
-		//{
-		//	auto chunk = Archetype::create<float, int>();
+	TEST(EntityComponentSystemTests, Chunk_CreateStruct_ValidSize)
+	{
+		auto chunk = Archetype::create<int, long, float, double, long long, Component1>();
+		CHECK(chunk->get_max_address() <= chunk_size);
+	}
 
-		//	//Should not throw exception
-		//	auto result = chunk->fetch<int>();
-		//}
+	TEST(EntityComponentSystemTests, Chunk_CreatePair_ValidSearch)
+	{
+		auto chunk = Archetype::create<float, int>();
 
-		//TEST_METHOD(Chunk_CreatePair_InvalidSearch)
-		//{
-		//	auto func = [] 
-		//	{ 
-		//		auto chunk = Archetype::create<float, int>();
+		//Should not throw exception
+		auto result = chunk->fetch<int>();
+	}
 
-		//		//Should throw exception
-		//		auto result = chunk->fetch<short>();
-		//	};
-		//	
-		//	Assert::ExpectException<std::runtime_error>(func);
-		//}
+	TEST(EntityComponentSystemTests, Chunk_CreatePair_InvalidSearch)
+	{
+		auto func = [] 
+		{ 
+			auto chunk = Archetype::create<float, int>();
 
-		//TEST_METHOD(Archetype_GetEntity_EntityFetched)
-		//{
-		//	auto archetype = Archetype::create<int>();
-		//	auto& entity = archetype->get_entity();
-		//	size_t expected = 0;
+			//Should throw exception
+			auto result = chunk->fetch<short>();
+		};
+			
+		CHECK_THROWS(std::runtime_error, func());
+	}
 
-		//	Assert::AreEqual(expected, entity.id);
-		//}
+	TEST(EntityComponentSystemTests, Archetype_GetEntity_EntityFetched)
+	{
+		auto archetype = Archetype::create<int>();
+		auto& entity = archetype->get_entity();
+		size_t expected = 0;
 
-		//TEST_METHOD(Archetype_GetLastEntity_EntityFetched)
-		//{
-		//	auto archetype = Archetype::create<int>();
-		//	for (size_t i = 0; i < archetype->get_array_count() - 1; ++i)
-		//	{
-		//		archetype->get_entity();
-		//	}
+		CHECK_EQUAL(expected, entity.id);
+	}
 
-		//	auto& entity = archetype->get_entity();
+	TEST(EntityComponentSystemTests, Archetype_GetLastEntity_EntityFetched)
+	{
+		auto archetype = Archetype::create<int>();
+		for (size_t i = 0; i < archetype->get_array_count() - 1; ++i)
+		{
+			archetype->get_entity();
+		}
 
-		//	//0 based
-		//	size_t expected = archetype->get_array_count() - 1;
+		auto& entity = archetype->get_entity();
 
-		//	Assert::AreEqual(expected, entity.id);
-		//}
+		//0 based
+		size_t expected = archetype->get_array_count() - 1;
 
-		//TEST_METHOD(Archetype_GetOneTooMAnyEntities_ExpectException)
-		//{
+		CHECK_EQUAL(expected, entity.id);
+	}
 
-		//	auto func = []
-		//	{
-		//		auto archetype = Archetype::create<int>();
-		//		for (size_t i = 0; i < archetype->get_array_count(); ++i)
-		//		{
-		//			archetype->get_entity();
-		//		}
+	TEST(EntityComponentSystemTests, Archetype_GetOneTooMAnyEntities_ExpectException)
+	{
 
-		//		//Should boom
-		//		auto& entity = archetype->get_entity();
-		//	};
+		auto func = []
+		{
+			auto archetype = Archetype::create<int>();
+			for (size_t i = 0; i < archetype->get_array_count(); ++i)
+			{
+				archetype->get_entity();
+			}
 
-		//	Assert::ExpectException<std::runtime_error>(func);
-		//}
+			//Should boom
+			auto& entity = archetype->get_entity();
+		};
 
-		//TEST_METHOD(Archetype_RemoveEntity_EntityRemoved)
-		//{
-		//	auto archetype = Archetype::create<int>();
+		CHECK_THROWS(std::runtime_error, func());
+	}
 
-		//	//Create entities
-		//	auto& entity = archetype->get_entity();
-		//	auto& entity2 = archetype->get_entity();
-		//	archetype->remove_entity(entity);
+	TEST(EntityComponentSystemTests, Archetype_RemoveEntity_EntityRemoved)
+	{
+		auto archetype = Archetype::create<int>();
 
-		//	size_t expected = 1;
-		//	Assert::AreEqual(expected, archetype->get_entity_count());
-		//}
+		//Create entities
+		auto& entity = archetype->get_entity();
+		auto& entity2 = archetype->get_entity();
+		archetype->remove_entity(entity);
 
-		//TEST_METHOD(Archetype_RemoveManyEntities_EntityRemoved)
-		//{
-		//	auto archetype = Archetype::create<int>();
-		//	Entity entities[50];
+		size_t expected = 1;
+		CHECK_EQUAL(expected, archetype->get_entity_count());
+	}
 
-		//	//Create entities
-		//	for (size_t i = 0; i < 100; ++i)
-		//	{
-		//		auto entity = archetype->get_entity();
-		//		if (i < 50)
-		//			entities[i] = entity;
-		//	}
+	TEST(EntityComponentSystemTests, Archetype_RemoveManyEntities_EntityRemoved)
+	{
+		auto archetype = Archetype::create<int>();
+		Entity entities[50];
 
-		//	for (const auto& entity : entities)
-		//	{
-		//		archetype->remove_entity(entity);
-		//	}
+		//Create entities
+		for (size_t i = 0; i < 100; ++i)
+		{
+			auto entity = archetype->get_entity();
+			if (i < 50)
+				entities[i] = entity;
+		}
 
-		//	size_t expected = 50;
-		//	Assert::AreEqual(expected, archetype->get_entity_count());
-		//}
+		for (const auto& entity : entities)
+		{
+			archetype->remove_entity(entity);
+		}
 
-		//TEST_METHOD(Archetype_RemoveEntity_EntityMoved)
-		//{
-		//	auto archetype = Archetype::create<int>();
+		size_t expected = 50;
+		CHECK_EQUAL(expected, archetype->get_entity_count());
+	}
 
-		//	//Create entities
-		//	auto& entity = archetype->get_entity();
-		//	auto& entity2 = archetype->get_entity();
-		//	auto& entity3 = archetype->get_entity();
+	TEST(EntityComponentSystemTests, Archetype_RemoveEntity_EntityMoved)
+	{
+		auto archetype = Archetype::create<int>();
 
-		//	//Set second entity to 99 since it will have to be moved to the index of entity after we remove
-		//	auto components = archetype->fetch<int>();
-		//	components[entity3.index] = 99;
-		//	archetype->remove_entity(entity);
+		//Create entities
+		auto& entity = archetype->get_entity();
+		auto& entity2 = archetype->get_entity();
+		auto& entity3 = archetype->get_entity();
 
-		//	size_t expected_index = 0;
+		//Set second entity to 99 since it will have to be moved to the index of entity after we remove
+		auto components = archetype->fetch<int>();
+		components[entity3.index] = 99;
+		archetype->remove_entity(entity);
 
-		//	Assert::AreEqual(expected_index, entity3.index);
-		//	Assert::AreEqual(99, components[entity3.index]);
-		//	Assert::AreEqual(0, components[entity2.index]);
-		//}
-  //  };
+		size_t expected_index = 0;
+
+		CHECK_EQUAL(expected_index, entity3.index);
+		CHECK_EQUAL(99, components[entity3.index]);
+		CHECK_EQUAL(0, components[entity2.index]);
+	}
 }

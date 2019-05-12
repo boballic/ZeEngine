@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <typeinfo>
+#include <memory>
 
 namespace ZeEngine
 {
@@ -93,13 +94,12 @@ namespace ZeEngine
 		public:
 
 			template <typename... Args>
-			static const std::unique_ptr<Archetype> create()
+			static std::unique_ptr<Archetype> create()
 			{
 				return std::make_unique<Archetype>(archetype_component_factory<Args...>());
 			}
 
 			Archetype(const Archetype_container& container);
-			~Archetype();
 
 			template <typename T>
 			T* fetch()
