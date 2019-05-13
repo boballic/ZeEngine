@@ -53,7 +53,7 @@ namespace ZeEngine
 				return;
 			}
 
-			//Swat indexes since we are moving
+			//Swap indexes since we are moving
 			auto index_to_remove = entity.index;
 			auto& removed_entity = fetch<Entity>()[entity.index];
 			auto& moved_entity = fetch<Entity>()[(entities - 1)];

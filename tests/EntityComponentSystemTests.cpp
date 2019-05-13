@@ -7,15 +7,9 @@
 #include <array>
 
 #include "CppUTest/TestHarness.h"
-#include "CppUTest/CommandLineTestRunner.h"
 
 using namespace ZeEngine::ecs;
 using namespace std;
-
-int main(int ac, char** av)
-{
-	return CommandLineTestRunner::RunAllTests(ac, av);
-}
 
 namespace CoreTests
 {
@@ -107,7 +101,6 @@ namespace CoreTests
 
 	TEST(EntityComponentSystemTests, Archetype_GetOneTooMAnyEntities_ExpectException)
 	{
-
 		auto func = []
 		{
 			auto archetype = Archetype::create<int>();

@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 
+#include "IGameEngine.h"
 namespace ZeEngine
 {
     class IGameState;
