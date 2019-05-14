@@ -13,17 +13,17 @@ TEST(Chunk_pool_tests, Pool_Create_ValidSize)
 	Chunk_pool pool;
 
 	auto count = pool.get_capacity();
-	auto expected = 1024 / 16384;
+	auto expected = ZeEngine::ecs::pool_size / 16384;
 
 	CHECK_EQUAL(count, expected);
 }
 
-//TEST(Chunk_pool_tests, Pool_Create_RetrieveChunk)
-//{
-//	Chunk_pool pool;
-//	auto chunk = pool.get_chunk();
-//	
-//	CHECK(chunk != nullptr);
-//}
+TEST(Chunk_pool_tests, Pool_Create_RetrieveChunk)
+{
+	Chunk_pool pool;
+	auto chunk = pool.get_chunk();
+	
+	CHECK(chunk != nullptr);
+}
 
 

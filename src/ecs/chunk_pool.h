@@ -8,13 +8,14 @@ namespace ZeEngine
 {
 	namespace ecs
 	{
-		constexpr size_t pool_size = 1024 * 1024;
+		static constexpr size_t pool_size = 1024 * 1024;
 
 		class Chunk_pool
 		{
 		public:
-			Chunk_pool() : free_chunks_(1024 / 16384, 0)
+			Chunk_pool() : free_chunks_(pool_size / 16384, 0)
 			{
+				chunk_ = std::make_unique<char[]>(pool_size);
 				size_t addr = 0;
 				for (auto& index : free_chunks_)
 				{
@@ -28,7 +29,7 @@ namespace ZeEngine
 
 		private:
 			std::vector<size_t> free_chunks_;
-			std::array<char, 1024> chunk_ { 0 };
+			std::unique_ptr<char[]> chunk_;
 		};
 	}
 }
