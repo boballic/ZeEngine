@@ -23,11 +23,33 @@ TEST(Chunk_pool_tests, Pool_Create_ValidInitialUsedSize)
 	CHECK_EQUAL(0, used);
 }
 
-TEST(Chunk_pool_tests, Pool_Create_ValidSize)
+TEST(Chunk_pool_tests, Pool_PreserveSortWhenGet_IsSorted)
 {
 	Chunk_pool pool;
-	auto capacity = pool.get_capacity();
-	CHECK_EQUAL(ZeEngine::ecs::chunks_per_pool, capacity);
+    auto chunk1 = pool.get_chunk();
+    auto chunk2 = pool.get_chunk();
+
+	CHECK(chunk1.address_ < chunk2.address_);
+}
+
+TEST(Chunk_pool_tests, Pool_PreserveSortWhenGetAndFree_IsSorted)
+{
+    Chunk_pool pool;
+    auto chunk1 = pool.get_chunk();
+    auto chunk2 = pool.get_chunk();
+    auto chunk3 = pool.get_chunk();
+
+    pool.free_chunk(chunk2);
+    chunk2 = pool.get_chunk();
+
+    CHECK(chunk1.address_ < chunk2.address_ < chunk3.address_);
+}
+
+TEST(Chunk_pool_tests, Pool_Create_ValidateMemory)
+{
+    Chunk_pool pool;
+    auto capacity = pool.get_capacity();
+    CHECK_EQUAL(ZeEngine::ecs::chunks_per_pool, capacity);
 }
 
 TEST(Chunk_pool_tests, Pool_Retrieve_NotNull)

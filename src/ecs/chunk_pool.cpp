@@ -15,6 +15,8 @@ namespace ZeEngine
 				index = addr;
 				addr += chunk_size;
 			}
+
+            sort_reverse();
 		}
 
 		Chunk Chunk_pool::get_chunk()
@@ -38,7 +40,37 @@ namespace ZeEngine
 			{
 				free_chunks_.push_back(chunk.address_);
 				used_chunks_.erase(it);
+
+                sort_reverse();
 			}
 		}
+
+        //Keep the list sorted (reverse since we pop_back) so we can keep the memory close together when we pull from the vector
+        void Chunk_pool::sort_reverse()
+        {
+            std::sort(free_chunks_.begin(), free_chunks_.end(), std::greater<size_t>());
+        }
+
+        //If no free chunks are found then create a new pool
+        Chunk Chunk_pool_factory::get_chunk()
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+
+            //Search for existing
+            for (auto& chunk_pool : pools_)
+            {
+                auto chunk = chunk_pool.get_chunk();
+
+                if (chunk.ptr_ != nullptr)
+                {
+                    return chunk;
+                }
+            }
+
+            //Create and return
+            pools_.emplace_back();
+            auto& new_pool = pools_.back();
+            return new_pool.get_chunk();
+        }
 	}
 }

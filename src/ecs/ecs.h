@@ -66,20 +66,6 @@ namespace ZeEngine
 			size_t archetype_size { 0 };
 		};
 
-		template <typename T>
-		void archetype_component_factory(Archetype_container& container)
-		{
-			container.add_component<T>();
-		}
-
-
-		template<typename T, typename U, typename... Args>
-		void archetype_component_factory(Archetype_container& container)
-		{
-			container.add_component<T>();
-			archetype_component_factory<U, Args...>(container);
-		}
-
 		template<typename... Args>
 		Archetype_container archetype_component_factory()
 		{
@@ -88,17 +74,30 @@ namespace ZeEngine
 			return container;
 		}
 
+        template <typename T>
+        void archetype_component_factory(Archetype_container& container)
+        {
+            container.add_component<T>();
+        }
+
+        template<typename T, typename U, typename... Args>
+        void archetype_component_factory(Archetype_container& container)
+        {
+            container.add_component<T>();
+            archetype_component_factory<U, Args...>(container);
+        }
+
 		class Archetype
 		{
 		public:
 
 			template <typename... Args>
-			static std::unique_ptr<Archetype> create()
+			static std::unique_ptr<Archetype> create(Chunk_pool_factory& factory)
 			{
-				return std::make_unique<Archetype>(archetype_component_factory<Args...>());
+				return std::make_unique<Archetype>(factory.get_chunk(), archetype_component_factory<Args...>());
 			}
 
-			Archetype(const Archetype_container& container);
+			Archetype(const Chunk& chunk, const Archetype_container& container);
 
 			template <typename T>
 			T* fetch()
@@ -109,7 +108,7 @@ namespace ZeEngine
 				}
 
 				auto address = components[typeid(T)].address;
-				return reinterpret_cast<T*>(&chunk[address]);
+				return reinterpret_cast<T*>(&ptr_[address]);
 			}
 
 			const Entity& get_entity();
@@ -123,7 +122,7 @@ namespace ZeEngine
 			char* fetch_internal(const TypeInfoRef& type);
 
 		private:
-			std::array<char, chunk_size> chunk{ 0 };
+            char* ptr_;
 			std::unordered_map<TypeInfoRef, Archetype_locator, Hasher, EqualTo> components;
 			size_t count { 0 };
 			size_t max_address { 0 };

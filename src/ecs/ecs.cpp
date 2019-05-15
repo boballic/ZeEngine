@@ -4,7 +4,9 @@ namespace ZeEngine
 {
 	namespace ecs
 	{
-		Archetype::Archetype(const Archetype_container& container) : count(chunk_size / (container.get_archetype_size() + sizeof(Entity)))
+		Archetype::Archetype(const Chunk& chunk, const Archetype_container& container) :
+            count(chunk_size / (container.get_archetype_size() + sizeof(Entity))),
+            ptr_(chunk.ptr_)
 		{
 			size_t address = 0;
 
@@ -85,8 +87,9 @@ namespace ZeEngine
 			}
 
 			const auto address = components[type].address;
-			return static_cast<char*>(&chunk[address]);
+			return static_cast<char*>(&ptr_[address]);
 		}
+
 		//Archetype& Archetype_manager::get_next(Archetype_container& container) const
 		//{
 		//	container.add_component<Entity>();
