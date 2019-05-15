@@ -6,13 +6,12 @@
 #include <vector>
 #include <typeinfo>
 #include <memory>
+#include "chunk_pool.h"
 
 namespace ZeEngine
 {
 	namespace ecs
 	{
-		const static size_t chunk_size = 16384;
-
 		struct Entity 
 		{
 			size_t id { 0 };

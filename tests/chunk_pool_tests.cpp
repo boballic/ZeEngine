@@ -8,22 +8,97 @@ TEST_GROUP(Chunk_pool_tests)
 {
 };
 
+TEST(Chunk_pool_tests, Pool_Create_ValidInitialFreeSize)
+{
+	Chunk_pool pool;
+	auto free = pool.get_free_size();
+
+	CHECK_EQUAL(ZeEngine::ecs::chunks_per_pool, free);
+}
+
+TEST(Chunk_pool_tests, Pool_Create_ValidInitialUsedSize)
+{
+	Chunk_pool pool;
+	auto used = pool.get_used_size();
+	CHECK_EQUAL(0, used);
+}
+
 TEST(Chunk_pool_tests, Pool_Create_ValidSize)
 {
 	Chunk_pool pool;
-
-	auto count = pool.get_capacity();
-	auto expected = ZeEngine::ecs::pool_size / 16384;
-
-	CHECK_EQUAL(count, expected);
+	auto capacity = pool.get_capacity();
+	CHECK_EQUAL(ZeEngine::ecs::chunks_per_pool, capacity);
 }
 
-TEST(Chunk_pool_tests, Pool_Create_RetrieveChunk)
+TEST(Chunk_pool_tests, Pool_Retrieve_NotNull)
 {
 	Chunk_pool pool;
 	auto chunk = pool.get_chunk();
 	
-	CHECK(chunk != nullptr);
+	CHECK(chunk.ptr_ != nullptr);
+}
+
+TEST(Chunk_pool_tests, Pool_GetMaxChunks_RetrieveChunk)
+{
+	Chunk_pool pool;
+
+	for (size_t i = 0; i < ZeEngine::ecs::chunks_per_pool - 1; ++i)
+	{
+		pool.get_chunk();
+	}
+
+	auto chunk = pool.get_chunk();
+	CHECK(chunk.ptr_ != nullptr);
+}
+
+TEST(Chunk_pool_tests, Pool_ExhaustChunks_ExpectNullPtr)
+{
+	Chunk_pool pool;
+
+	for (size_t i = 0; i < ZeEngine::ecs::chunks_per_pool; ++i)
+	{
+		pool.get_chunk();
+	}
+
+	auto chunk = pool.get_chunk();
+	CHECK(chunk.ptr_ == nullptr);
+}
+
+TEST(Chunk_pool_tests, Pool_ExhaustChunksThenFree_ValidSize)
+{
+	Chunk_pool pool;
+	std::vector<Chunk> chunks;
+	for (size_t i = 0; i < ZeEngine::ecs::chunks_per_pool; ++i)
+	{
+		chunks.emplace_back(pool.get_chunk());
+	}
+
+	for(auto chunk : chunks)
+	{
+		pool.free_chunk(chunk);
+	}
+
+	auto expected = ZeEngine::ecs::chunks_per_pool;
+	CHECK_EQUAL(expected, pool.get_free_size());
+}
+
+TEST(Chunk_pool_tests, Pool_DoubleFreeChunk_ValidSize)
+{
+	Chunk_pool pool;
+	std::vector<Chunk> chunks;
+	for (size_t i = 0; i < ZeEngine::ecs::chunks_per_pool; ++i)
+	{
+		chunks.emplace_back(pool.get_chunk());
+	}
+
+	for (auto chunk : chunks)
+	{
+		pool.free_chunk(chunk);
+		pool.free_chunk(chunk);
+	}
+
+	auto expected = ZeEngine::ecs::chunks_per_pool;
+	CHECK_EQUAL(expected, pool.get_free_size());
 }
 
 

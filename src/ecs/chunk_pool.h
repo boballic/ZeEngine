@@ -1,7 +1,7 @@
 #ifndef ZEENGINE_POOL_H
 #define ZEENGINE_POOL_H
 
-#include <array>
+#include <memory>
 #include <vector>
 
 namespace ZeEngine
@@ -9,26 +9,29 @@ namespace ZeEngine
 	namespace ecs
 	{
 		static constexpr size_t pool_size = 1024 * 1024;
+		static constexpr size_t chunk_size = 1024 * 16;
+		static const size_t chunks_per_pool = pool_size / chunk_size;
+
+		struct Chunk
+		{
+			size_t address_{ 0 };
+			char* ptr_{ nullptr };
+		};
 
 		class Chunk_pool
 		{
 		public:
-			Chunk_pool() : free_chunks_(pool_size / 16384, 0)
-			{
-				chunk_ = std::make_unique<char[]>(pool_size);
-				size_t addr = 0;
-				for (auto& index : free_chunks_)
-				{
-					index = addr;
-					addr += 16384;
-				}
-			}
-
+			Chunk_pool();
 			inline size_t get_capacity() const { return free_chunks_.capacity(); }
-			char* get_chunk();
+			inline size_t get_free_size() const { return free_chunks_.size(); }
+			inline size_t get_used_size() const { return used_chunks_.size(); }
+
+			Chunk get_chunk();
+			void free_chunk(const Chunk& chunk);
 
 		private:
 			std::vector<size_t> free_chunks_;
+			std::vector<size_t> used_chunks_;
 			std::unique_ptr<char[]> chunk_;
 		};
 	}
