@@ -4,7 +4,6 @@
 #include "GameLoop.h"
 #include "core/IGameState.h"
 
-
 using namespace std;
 
 namespace ZeEngine

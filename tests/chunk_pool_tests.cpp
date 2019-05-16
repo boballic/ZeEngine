@@ -42,7 +42,7 @@ TEST(Chunk_pool_tests, Pool_PreserveSortWhenGetAndFree_IsSorted)
     pool.free_chunk(chunk2);
     chunk2 = pool.get_chunk();
 
-    CHECK(chunk1.address_ < chunk2.address_ < chunk3.address_);
+    CHECK(chunk1.address_ < chunk2.address_ && chunk2.address_ < chunk3.address_);
 }
 
 TEST(Chunk_pool_tests, Pool_Create_ValidateMemory)

@@ -6,11 +6,8 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("ZeEngine" VERSION 1.0.0 LANGUAGES CXX)
 
-option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
 set(ZEENGINE_HOME ${CMAKE_CURRENT_SOURCE_DIR})
 set(CPPUNITTEST_HOME ${CMAKE_CURRENT_SOURCE_DIR}/libs/cpputest-3.8)
-
-
 set(ZEENGINE_TEST ON)
 
 file(GLOB SOURCE_FILES
@@ -18,7 +15,7 @@ file(GLOB SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ecs/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp)
 
-add_library(zeengine ${SOURCE_FILES})
+add_library(zeengine STATIC ${SOURCE_FILES})
 
 target_include_directories(zeengine
     PUBLIC
