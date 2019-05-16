@@ -1,4 +1,4 @@
-#include "ecs.h"
+#include "ecs/ecs.h"
 
 namespace ZeEngine
 {
@@ -30,13 +30,13 @@ namespace ZeEngine
 
 		const Entity& Archetype::get_entity()
 		{
-			if (entities > count - 1)
+			if (entity_count > count - 1)
 			{
 				throw std::runtime_error("No more entities left in this archetype");
 			}
 
-			auto& entity = fetch<Entity>()[entities];
-			entities++;
+			auto& entity = fetch<Entity>()[entity_count];
+			entity_count++;
 			return entity;
 		}
 
@@ -45,20 +45,20 @@ namespace ZeEngine
 		 */
 		void Archetype::remove_entity(const Entity& entity)
 		{
-			if (entities == 0)
+			if (entity_count == 0)
 				return;
 
 			//Nothing to copy theres only 1 entity just remove it
-			if (entities == 1)
+			if (entity_count == 1)
 			{
-				entities--;
+				entity_count--;
 				return;
 			}
 
 			//Swap indexes since we are moving
 			auto index_to_remove = entity.index;
 			auto& removed_entity = fetch<Entity>()[entity.index];
-			auto& moved_entity = fetch<Entity>()[(entities - 1)];
+			auto& moved_entity = fetch<Entity>()[(entity_count - 1)];
 			std::swap(removed_entity.index, moved_entity.index);
 
 			for (const auto& types : components)
@@ -71,12 +71,12 @@ namespace ZeEngine
 				char* component = fetch_internal(types.first);
 
 				auto destination = reinterpret_cast<void*>(&component[index_to_remove * size]);
-				auto source = reinterpret_cast<void*>(&component[(entities - 1) * size]);
+				auto source = reinterpret_cast<void*>(&component[(entity_count - 1) * size]);
 
 				memcpy_s(destination, size, source, size);
 			}
 
-			entities--;
+			entity_count--;
 		}
 
 		char* Archetype::fetch_internal(const TypeInfoRef& type)

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <tuple>
 #include <functional>
-#include "ecs\ecs.h"
+#include "ecs/ecs.h"
 #include <vector>
 #include <array>
 
@@ -186,4 +186,14 @@ TEST(ecs_tests, Archetype_RemoveEntity_EntityMoved)
 	CHECK_EQUAL(expected_index, entity3.index);
 	CHECK_EQUAL(99, components[entity3.index]);
 	CHECK_EQUAL(0, components[entity2.index]);
+}
+
+TEST(ecs_tests, Archetype_FetchEach_AllFetched)
+{
+	Chunk_pool_factory factory;
+	auto archetype = create<int, float, double> (factory);
+
+	auto a = archetype->fetch<int>();
+	auto b =archetype->fetch<float>();
+	auto c = archetype->fetch<double>();
 }

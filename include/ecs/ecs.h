@@ -12,10 +12,10 @@ namespace ZeEngine
 {
 	namespace ecs
 	{
-		struct Entity 
+		struct Entity
 		{
-			size_t id { 0 };
-			size_t index { 0 };
+			size_t id{ 0 };
+			size_t index{ 0 };
 		};
 
 		using TypeInfoRef = std::reference_wrapper<const type_info>;
@@ -41,7 +41,7 @@ namespace ZeEngine
 
 		struct Archetype_component {
 			TypeInfoRef ref;
-			size_t size { 0 };
+			size_t size{ 0 };
 		};
 
 		class Archetype_container : public std::vector<Archetype_component>
@@ -60,10 +60,10 @@ namespace ZeEngine
 				push_back(Archetype_component{ typeid(T), sizeof(T) });
 			}
 
-		inline size_t get_archetype_size() const { return archetype_size; }
+			inline size_t get_archetype_size() const { return archetype_size; }
 
 		private:
-			size_t archetype_size { 0 };
+			size_t archetype_size{ 0 };
 		};
 
 		template<typename... Args>
@@ -74,18 +74,18 @@ namespace ZeEngine
 			return container;
 		}
 
-        template <typename T>
-        void archetype_component_factory(Archetype_container& container)
-        {
-            container.add_component<T>();
-        }
+		template <typename T>
+		void archetype_component_factory(Archetype_container& container)
+		{
+			container.add_component<T>();
+		}
 
-        template<typename T, typename U, typename... Args>
-        void archetype_component_factory(Archetype_container& container)
-        {
-            container.add_component<T>();
-            archetype_component_factory<U, Args...>(container);
-        }
+		template<typename T, typename U, typename... Args>
+		void archetype_component_factory(Archetype_container& container)
+		{
+			container.add_component<T>();
+			archetype_component_factory<U, Args...>(container);
+		}
 
 		class Archetype
 		{
@@ -113,8 +113,21 @@ namespace ZeEngine
 
 			const Entity& get_entity();
 			void remove_entity(const Entity& entity);
-			
-			inline size_t get_entity_count() const { return entities; }
+
+			//Todo optimize this
+			template <typename T, typename... Args>
+			bool supports_component() const
+			{
+				if (components.find(typeid(T)) == components.end())
+				{
+					return false;
+				}
+				return true;
+				//return supports_component<Args...>();
+			}
+
+			inline size_t can_create_entity() const { return entity_count < count; }
+			inline size_t get_entity_count() const { return entity_count; }
 			inline size_t get_array_count() const { return count; }
 			inline size_t get_max_address() const { return max_address; }
 
@@ -122,17 +135,42 @@ namespace ZeEngine
 			char* fetch_internal(const TypeInfoRef& type);
 
 		private:
-            char* ptr_;
+			char* ptr_;
 			std::unordered_map<TypeInfoRef, Archetype_locator, Hasher, EqualTo> components;
-			size_t count { 0 };
-			size_t max_address { 0 };
-			size_t entities { 0 };
+			size_t count{ 0 };
+			size_t max_address{ 0 };
+			size_t entity_count{ 0 };
 		};
 
-		class Archetype_manager
+		class Entity_manager
 		{
 		public:
-			//Archetype& get_next(Archetype_container& container) const;
+
+			//Todo optimize this
+			template <typename... Args>
+			const Entity& create_entity()
+			{
+				for (auto& archetype : archetypes_)
+				{
+					if (archetype->supports_component<Args...>())
+					{
+						if (archetype->can_create_entity())
+						{
+							return archetype->get_entity();
+						}
+					}
+				}
+
+				archetypes_.emplace_back(Archetype::create<Args...>(factory_));
+				return archetypes_.back()->get_entity();
+			}
+
+		private:
+			Chunk_pool_factory factory_;
+
+			//Todo this is probably not super efficient
+			//Todo group by archetype some unique id then group those by an internal id and save that in entity
+			std::vector<std::unique_ptr<Archetype>> archetypes_;
 		};
 	}
 }

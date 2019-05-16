@@ -31,21 +31,21 @@ namespace ZeEngine
 			void free_chunk(const Chunk& chunk);
 
 		private:
-            void sort_reverse();
+			void sort_reverse();
 
 			std::vector<size_t> free_chunks_;
 			std::vector<size_t> used_chunks_;
 			std::unique_ptr<char[]> chunk_;
 		};
 
-        class Chunk_pool_factory
-        {
-            public:
-                Chunk get_chunk();
-            private:
-                std::vector<Chunk_pool> pools_;
-                std::mutex mutex_;
-        };
+		class Chunk_pool_factory
+		{
+		public:
+			Chunk get_chunk();
+		private:
+			std::vector<Chunk_pool> pools_;
+			std::mutex mutex_;
+		};
 	}
 }
 #endif
