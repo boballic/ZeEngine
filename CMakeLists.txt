@@ -7,7 +7,6 @@ cmake_minimum_required (VERSION 3.8)
 project ("ZeEngine" VERSION 1.0.0 LANGUAGES CXX)
 
 option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" OFF)
-
 set(ZEENGINE_HOME ${CMAKE_CURRENT_SOURCE_DIR})
 set(CPPUNITTEST_HOME ${CMAKE_CURRENT_SOURCE_DIR}/libs/cpputest-3.8)
 
