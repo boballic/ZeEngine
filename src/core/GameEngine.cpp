@@ -2,7 +2,7 @@
 
 #include "GameEngine.h"
 #include "GameLoop.h"
-#include "IGameState.h"
+#include "core/IGameState.h"
 
 
 using namespace std;
