@@ -3,6 +3,9 @@
 #include <tuple>
 #include <functional>
 #include "ecs/ecs.h"
+#include "ecs/arche_type.h"
+#include "ecs/entity.h"
+#include "ecs/chunk_pool.h"
 #include <vector>
 #include <array>
 

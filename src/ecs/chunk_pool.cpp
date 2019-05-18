@@ -33,7 +33,7 @@ namespace ZeEngine
 			return { address, ptr };
 		}
 
-		void Chunk_pool::free_chunk(const Chunk& chunk)
+		void Chunk_pool::free_chunk(const Chunk& chunk) noexcept
 		{
 			auto it = find(used_chunks_.cbegin(), used_chunks_.cend(), chunk.address_);
 			if ( it != used_chunks_.cend())
@@ -72,5 +72,16 @@ namespace ZeEngine
             auto& new_pool = pools_.back();
             return new_pool.get_chunk();
         }
+
+		void Chunk_pool_factory::free_chunk(const Chunk& chunk) noexcept
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+
+			//Search for existing
+			for (auto& chunk_pool : pools_)
+			{
+				chunk_pool.free_chunk(chunk);
+			}
+		}
 	}
 }

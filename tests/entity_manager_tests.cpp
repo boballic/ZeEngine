@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "ecs/ecs.h"
+#include "ecs/arche_type.h"
 
 using namespace ZeEngine::ecs;
 using namespace std;

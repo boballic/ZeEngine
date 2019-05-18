@@ -28,7 +28,7 @@ namespace ZeEngine
 			inline size_t get_used_size() const { return used_chunks_.size(); }
 
 			Chunk get_chunk();
-			void free_chunk(const Chunk& chunk);
+			void free_chunk(const Chunk& chunk) noexcept;
 
 		private:
 			void sort_reverse();
@@ -42,6 +42,8 @@ namespace ZeEngine
 		{
 		public:
 			Chunk get_chunk();
+			void free_chunk(const Chunk& chunk) noexcept;
+
 		private:
 			std::vector<Chunk_pool> pools_;
 			std::mutex mutex_;
