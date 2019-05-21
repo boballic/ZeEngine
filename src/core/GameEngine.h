@@ -2,8 +2,8 @@
 #include <stack>
 
 #include "GameLoop.h"
-#include "IGameState.h"
-#include "IGameEngine.h"
+#include "core/IGameState.h"
+#include "core/IGameEngine.h"
 #include "IGameEngineCore.h"
 #include "GameEngineStateMachine.h"
 

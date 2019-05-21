@@ -2,8 +2,7 @@
 #include <memory>
 #include <vector>
 #include <stack>
-
-#include "IGameEngine.h"
+#include "core/IGameEngine.h"
 namespace ZeEngine
 {
     class IGameState;
