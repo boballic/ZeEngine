@@ -12,8 +12,8 @@ namespace ZeEngine
 
 			for (const auto& type : container)
 			{
-				components[type.ref].address = address;
-				components[type.ref].size = type.size;
+				components_[type.ref].address = address;
+				components_[type.ref].size = type.size;
 
 				address += type.size * count;
 			}
@@ -28,7 +28,7 @@ namespace ZeEngine
 			}
 		}
 
-		const Entity& Archetype::get_entity()
+		const Entity& Archetype::create_entity()
 		{
 			if (entity_count > count - 1)
 			{
@@ -61,7 +61,7 @@ namespace ZeEngine
 			auto& moved_entity = fetch<Entity>()[(entity_count - 1)];
 			std::swap(removed_entity.index, moved_entity.index);
 
-			for (const auto& types : components)
+			for (const auto& types : components_)
 			{
 				//We already copied this above
 				if (types.first.get() == typeid(Entity))
@@ -79,14 +79,14 @@ namespace ZeEngine
 			entity_count--;
 		}
 
-		char* Archetype::fetch_internal(const TypeInfoRef& type)
+		char* Archetype::fetch_internal(const type_info_ref& type)
 		{
-			if (components.find(type) == components.end())
+			if (components_.find(type) == components_.end())
 			{
 				throw std::runtime_error("Component not found");
 			}
 
-			const auto address = components[type].address;
+			const auto address = components_[type].address;
 			return static_cast<char*>(&ptr_[address]);
 		}
 	}

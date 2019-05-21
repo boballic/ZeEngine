@@ -36,7 +36,7 @@ namespace ZeEngine
 		void Chunk_pool::free_chunk(const Chunk& chunk) noexcept
 		{
 			auto it = find(used_chunks_.cbegin(), used_chunks_.cend(), chunk.address_);
-			if ( it != used_chunks_.cend())
+			if (it != used_chunks_.cend())
 			{
 				free_chunks_.push_back(chunk.address_);
 				used_chunks_.erase(it);

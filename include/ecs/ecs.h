@@ -5,43 +5,42 @@
 #include <unordered_map>
 #include <vector>
 #include <typeinfo>
+#include <typeindex>
 #include <memory>
 #include "chunk_pool.h"
 #include "ecs\arche_type.h"
 #include "ecs\entity.h"
+#include "ecs\archetype_factory.h"
+
 namespace ZeEngine
 {
 	namespace ecs
 	{
+		typedef  std::vector<std::unique_ptr<Archetype>> Archetypes;
+
 		class Entity_manager
 		{
 		public:
-
-			//Todo optimize this
 			template <typename... Args>
 			const Entity& create_entity()
 			{
-				for (auto& archetype : archetypes_)
-				{
-					if (archetype->supports_component<Args...>())
-					{
-						if (archetype->can_create_entity())
-						{
-							return archetype->get_entity();
-						}
-					}
-				}
+				static auto archetype_index = std::type_index(typeid(Args)...);
 
-				archetypes_.emplace_back(Archetype::create<Args...>(factory_));
-				return archetypes_.back()->get_entity();
+				auto it = archetypes_.find(archetype_index);
+				if (it == archetypes_.end())
+				{
+					auto factory = Archetype_factory::create_factory<Args...>(factory_);
+					auto& entity = factory->create_entity<Args...>(factory_);
+					archetypes_.insert({archetype_index, std::move(factory) });
+					return entity;				
+				}
+				
+				return it->second->create_entity<Args...>(factory_);
 			}
 
 		private:
 			Chunk_pool_factory factory_;
-
-			//Todo this is probably not super efficient
-			//Todo group by archetype some unique id then group those by an internal id and save that in entity
-			std::vector<std::unique_ptr<Archetype>> archetypes_;
+			std::unordered_map<std::type_index, std::unique_ptr<Archetype_factory>> archetypes_;
 		};
 	}
 }

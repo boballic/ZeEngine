@@ -92,7 +92,7 @@ TEST(ecs_tests, Archetype_GetEntity_EntityFetched)
 {
     Chunk_pool_factory factory;
     auto archetype = create<int>(factory);
-	auto& entity = archetype->get_entity();
+	auto& entity = archetype->create_entity();
 	size_t expected = 0;
 	CHECK_EQUAL(expected, entity.id);
 }
@@ -103,10 +103,10 @@ TEST(ecs_tests, Archetype_GetLastEntity_EntityFetched)
 	auto archetype = create<int>(factory);
 	for (size_t i = 0; i < archetype->get_array_count() - 1; ++i)
 	{
-		archetype->get_entity();
+		archetype->create_entity();
 	}
 
-	auto& entity = archetype->get_entity();
+	auto& entity = archetype->create_entity();
 
 	//0 based
 	size_t expected = archetype->get_array_count() - 1;
@@ -122,11 +122,11 @@ TEST(ecs_tests, Archetype_GetOneTooMAnyEntities_ExpectException)
 		auto archetype = create<int>(factory);
 		for (size_t i = 0; i < archetype->get_array_count(); ++i)
 		{
-			archetype->get_entity();
+			archetype->create_entity();
 		}
 
 		//Should boom
-		auto& entity = archetype->get_entity();
+		auto& entity = archetype->create_entity();
 	};
 
 	CHECK_THROWS(std::runtime_error, func());
@@ -138,8 +138,8 @@ TEST(ecs_tests, Archetype_RemoveEntity_EntityRemoved)
 	auto archetype = create<int>(factory);
 
 	//Create entities
-	auto& entity = archetype->get_entity();
-	auto& entity2 = archetype->get_entity();
+	auto& entity = archetype->create_entity();
+	auto& entity2 = archetype->create_entity();
 	archetype->remove_entity(entity);
 
 	size_t expected = 1;
@@ -155,7 +155,7 @@ TEST(ecs_tests, Archetype_RemoveManyEntities_EntityRemoved)
 	//Create entities
 	for (size_t i = 0; i < 100; ++i)
 	{
-		auto entity = archetype->get_entity();
+		auto entity = archetype->create_entity();
 		if (i < 50)
 			entities[i] = entity;
 	}
@@ -175,9 +175,9 @@ TEST(ecs_tests, Archetype_RemoveEntity_EntityMoved)
 	auto archetype = create<int>(factory);
 
 	//Create entities
-	auto& entity = archetype->get_entity();
-	auto& entity2 = archetype->get_entity();
-	auto& entity3 = archetype->get_entity();
+	auto& entity = archetype->create_entity();
+	auto& entity2 = archetype->create_entity();
+	auto& entity3 = archetype->create_entity();
 
 	//Set second entity to 99 since it will have to be moved to the index of entity after we remove
 	auto components = archetype->fetch<int>();
@@ -199,4 +199,20 @@ TEST(ecs_tests, Archetype_FetchEach_AllFetched)
 	auto a = archetype->fetch<int>();
 	auto b =archetype->fetch<float>();
 	auto c = archetype->fetch<double>();
+}
+
+TEST(ecs_tests, Archetype_CreateInt_IsSupported)
+{
+	Chunk_pool_factory factory;
+	auto archetype = create<int, float, double>(factory);
+	auto result = archetype->supports_component<int, float, double>();
+	CHECK_EQUAL(true, result);
+}
+
+TEST(ecs_tests, Archetype_CreateIntCheckSomethingElse_IsNotSupported)
+{
+	Chunk_pool_factory factory;
+	auto archetype = create<int, float, double>(factory);
+	auto result = archetype->supports_component<int, float, double, short>();
+	//CHECK_EQUAL(false, result);
 }

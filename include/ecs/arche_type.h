@@ -13,17 +13,17 @@ namespace ZeEngine
 {
 	namespace ecs
 	{
-		using TypeInfoRef = std::reference_wrapper<const type_info>;
+		using type_info_ref = std::reference_wrapper<const type_info>;
 
 		struct Hasher {
-			size_t operator()(TypeInfoRef code) const
+			size_t operator()(type_info_ref code) const
 			{
 				return code.get().hash_code();
 			}
 		};
 
-		struct EqualTo {
-			bool operator()(TypeInfoRef lhs, TypeInfoRef rhs) const
+		struct Equal_to {
+			bool operator()(type_info_ref lhs, type_info_ref rhs) const
 			{
 				return lhs.get() == rhs.get();
 			}
@@ -35,7 +35,7 @@ namespace ZeEngine
 		};
 
 		struct Archetype_component {
-			TypeInfoRef ref;
+			type_info_ref ref;
 			size_t size{ 0 };
 		};
 
@@ -55,7 +55,7 @@ namespace ZeEngine
 				push_back(Archetype_component{ typeid(T), sizeof(T) });
 			}
 
-			inline size_t get_archetype_size() const { return archetype_size; }
+			size_t get_archetype_size() const { return archetype_size; }
 
 		private:
 			size_t archetype_size{ 0 };
@@ -92,33 +92,43 @@ namespace ZeEngine
 				return std::make_unique<Archetype>(factory.get_chunk(), archetype_component_factory<Args...>());
 			}
 
+			template <typename... Args>
+			static std::unique_ptr<Archetype> create(Chunk_pool_factory& factory, const Archetype_container& container)
+			{
+				return std::make_unique<Archetype>(factory.get_chunk(), container);
+			}
+
 			Archetype(const Chunk& chunk, const Archetype_container& container);
 
 			template <typename T>
 			T* fetch()
 			{
-				if (components.find(typeid(T)) == components.end())
+				if (components_.find(typeid(T)) == components_.end())
 				{
 					throw std::runtime_error("Component not found");
 				}
 
-				auto address = components[typeid(T)].address;
+				auto address = components_[typeid(T)].address;
 				return reinterpret_cast<T*>(&ptr_[address]);
 			}
 
-			const Entity& get_entity();
+			const Entity& create_entity();
 			void remove_entity(const Entity& entity);
 
-			//Todo optimize this
-			template <typename T, typename... Args>
-			bool supports_component() const
+			template <typename T>
+			bool supports_component() const noexcept
 			{
-				if (components.find(typeid(T)) == components.end())
-				{
+				return components_.find(typeid(T)) != components_.end();
+			}
+
+			template <typename T, typename U, typename... Args>
+			bool supports_component() const noexcept
+			{
+				//Would be faster to have a bit mask but at least like this we can support as many components as we want
+				if (components_.find(typeid(T)) == components_.end())
 					return false;
-				}
-				return true;
-				//return supports_component<Args...>();
+
+				return supports_component<U, Args...>();
 			}
 
 			inline size_t can_create_entity() const { return entity_count < count; }
@@ -127,17 +137,15 @@ namespace ZeEngine
 			inline size_t get_max_address() const { return max_address; }
 
 		private:
-			char* fetch_internal(const TypeInfoRef& type);
+			char* fetch_internal(const type_info_ref& type);
 
 		private:
 			char* ptr_;
-			std::unordered_map<TypeInfoRef, Archetype_locator, Hasher, EqualTo> components;
+			std::unordered_map<type_info_ref, Archetype_locator, Hasher, Equal_to> components_;
 			size_t count{ 0 };
 			size_t max_address{ 0 };
 			size_t entity_count{ 0 };
-		};
-
-		
+		};	
 	}
 }
 
