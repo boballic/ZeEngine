@@ -13,6 +13,6 @@ target_include_directories(ZEENGINE-test
 target_link_libraries(ZEENGINE-test zeengine)
 target_link_libraries(ZEENGINE-test CppUTest CppUTestExt)
 
-add_custom_command(TARGET ZEENGINE-test COMMAND ./ZEENGINE-test POST_BUILD)
+#add_custom_command(TARGET ZEENGINE-test COMMAND ./ZEENGINE-test POST_BUILD)
 
 

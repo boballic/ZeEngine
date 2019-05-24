@@ -11,6 +11,91 @@
 
 namespace ZeEngine
 {
+    namespace ecs::test
+    {
+        template<typename T>
+        constexpr size_t size_of()
+        {
+            return sizeof(T);
+        }
+
+        template<typename T, typename U, typename... Args>
+        constexpr size_t size_of()
+        {
+            return sizeof(T) + size_of<U, Args...>();
+        }
+
+        template<typename U>
+        static constexpr size_t test(size_t address)
+        {
+            throw std::runtime_error("Could not find type in archetype");
+        }
+
+        template <typename U, typename T, typename... Args>
+        static constexpr size_t test()
+        {
+            if (std::is_same<T, U>())
+                return 0;
+
+            return test<U, Args...>(sizeof(T));
+        }
+
+        template <typename U, typename T, typename... Args>
+        static constexpr size_t test(size_t address)
+        {
+            if (std::is_same<T, U>())
+                return address;
+
+            return test<U, Args...>(sizeof(T) + address);
+        }
+
+        class IArchetype
+        {
+        public:
+            virtual ~IArchetype() = default;
+        };
+
+        template <class... Args> 
+        class Archetype : public IArchetype
+        { 
+        protected:
+            Archetype() = default;
+            Archetype(size_t size) : _data(std::make_unique<char[]>(size))
+            {
+            }
+
+        protected:
+            std::unique_ptr<char[]> _data;
+        };
+
+        template <class T, class... Args>
+        class Archetype<T, Args...> : public Archetype<Args...>
+        {
+        public:
+            static constexpr size_t size_bytes = size_of<T, Args...>();
+            static constexpr size_t pool_size_bytes = 1024 * 1024;
+            static constexpr size_t chunk_size_bytes = 1024 * 16;
+            static constexpr size_t num_elements = chunk_size_bytes / size_bytes;
+
+            Archetype() : Archetype<Args...>(size_bytes)
+            {
+            }
+
+            template <typename U>
+            std::array<U, num_elements> t2()
+            {
+                auto wtv = test<U, T, Args...>();
+                void* ptr = static_cast<void*>(&_data.get()[wtv]);
+                return reinterpret_cast<std::array<U, num_elements>>(ptr);
+            }
+
+        protected:
+            Archetype(size_t size) : Archetype<Args...>(size)
+            {
+
+            }
+        };
+    }
 	namespace ecs
 	{
 		using type_info_ref = std::reference_wrapper<const type_info>;

@@ -26,12 +26,19 @@ struct Component1
 };
 
 
+void Test(ZeEngine::ecs::test::IArchetype& test)
+{
+
+}
 TEST_GROUP(ecs_tests)
 {
 };
 
 TEST(ecs_tests, Chunk_CreateInt_ValidSize)
 {
+    ZeEngine::ecs::test::Archetype<float, int> a;
+    constexpr auto address = ZeEngine::ecs::test::test<float, float, int>();
+    a.t2<short>();
     Chunk_pool_factory factory;
 	auto chunk = create<int>(factory);
 	CHECK(chunk->get_max_address() <= chunk_size);
